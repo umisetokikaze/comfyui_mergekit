@@ -3,7 +3,7 @@ import torch
 def load_model(model_name, device,dtype):
     torch_dtype = getattr(torch, dtype)
     model = AutoModelForCausalLM.from_pretrained(
-        model,
+        model_name,
         torch_dtype=torch_dtype,
         device_map=device,
         low_cpu_mem_usage=True
@@ -32,7 +32,7 @@ class LoadLR:
             },
         }
 
-    RETURN_TYPES = ("left_model","right_model","velocity")
+    RETURN_TYPES = ("left_model","right_model","velocity",)
 
     FUNCTION = "load_left_right_models"
 
@@ -44,6 +44,7 @@ class LoadLR:
         left_weight, left_state_dict = load_model(model_dict["left"], device,dtype)
         right_weight, right_state_dict = load_model(model_dict["right"], device,dtype)
         # del base_weight, sub_weight
+        print("all loaded")
         return (left_weight, left_state_dict), (right_weight, right_state_dict), velocity
 
 

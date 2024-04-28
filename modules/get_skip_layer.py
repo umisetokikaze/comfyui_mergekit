@@ -27,10 +27,10 @@ class GetSkip:
     CATEGORY = "mergetool_llm"
 
 
-    def get_skip_layers(self, target, left, right):
-        target_weight, target_state_dict = target
-        right_weight, left_state_dict = left
-        right_weight, right_state_dict = right
+    def get_skip_layers(self, target_model, left_model, right_model):
+        target_state_dict = target_model.state_dict()
+        right_weight, left_state_dict = left_model
+        right_weight, right_state_dict = right_model
         # それぞれのstate_dictからキーとテンソルのサイズを取得し、比較する。もしも合致しないものがあればそれだけを表示する。
         skip_layers = []
         target = target_state_dict
@@ -59,7 +59,7 @@ class GetSkip:
             print(" match all layer tensor size")
         else:
             print(skip_layers)
-        return skip_layers
+        return [skip_layers]
 
 # A dictionary that contains all nodes you want to export with their names
 # NOTE: names should be globally unique

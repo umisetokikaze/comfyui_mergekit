@@ -23,16 +23,16 @@ class LoadTarget:
 
     RETURN_TYPES = ("target_model",)
 
-    FUNCTION = "load_models"
+    FUNCTION = "load_model"
 
     #OUTPUT_NODE = False
 
     CATEGORY = "mergetool_llm"
 
-    def load_model(self, model_name, device,dtype):
+    def load_model(self, target, device,dtype):
         torch_dtype = getattr(torch, dtype)
         weight = AutoModelForCausalLM.from_pretrained(
-            model_name,
+            target,
             torch_dtype=torch_dtype,
             device_map=device,
             low_cpu_mem_usage=True

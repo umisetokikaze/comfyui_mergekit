@@ -1,5 +1,4 @@
-
-import tqdm
+from tqdm import tqdm
 skip_layernorm = True
 
 def Add(v, k, base_state_dict, sub_state_dict, velocity):
@@ -22,8 +21,8 @@ def parse_layers(layers_str):
             return None
         return layers_str.split(',')
 
-def merge(target_model,left_model,right_model, velocity, skip_layers, operation, include_layers, exclude_layers,savename):
-    target_weight, target_state_dict = target_model
+def merge(target_model,left_model,right_model, velocity, skip_layers, operation,savename):
+    target_state_dict = target_model.state_dict()
     right_weight, left_state_dict = left_model
     right_weight, right_state_dict = right_model
     target = target_state_dict
@@ -36,8 +35,10 @@ def merge(target_model,left_model,right_model, velocity, skip_layers, operation,
         "div": Div,
         "mix": Mix,
     }
-    included_layers = []
+    include_layers = []
     excluded_layers = []
+    exclude_layers = []
+    included_layers = []
     with tqdm(target.keys()) as pbar:
         for k in pbar:
             if (k in skip_layers) or (skip_layernorm and "layernorm" in k):
@@ -67,7 +68,7 @@ def merge(target_model,left_model,right_model, velocity, skip_layers, operation,
     print(excluded_layers)
 
     target_model.save_pretrained(savename)
-
+    return target_model
 
 class Merge:
     def __init__(self):
@@ -90,20 +91,13 @@ class Merge:
                 "calc": ("STRING", {
                     "default": "add"
                 }),
-                "inc": ("include", {
-                    "default": ""
-                }),
-                "exc": ("exclude", {
-                    "default": ""
-                }),
                 "save_name": ("save_name", {
                     "default": ""
                 }),
-
             },
         }
 
-    RETURN_TYPES = ()
+    RETURN_TYPES = ("target_model",)
 
     FUNCTION = "set_models"
 
@@ -111,10 +105,8 @@ class Merge:
 
     CATEGORY = "mergetool_llm"
 
-    def set_models(self, target_model,left_model, right_model,skip_layers,velocity,calc,inc,exc,save_name):
-        inc = parse_layers(inc)
-        exc = parse_layers(exc)
-        merge(target_model,left_model, right_model, velocity, skip_layers, calc, inc, exc,save_name)
+    def set_models(self, target_model,left_model, right_model,skip_layers,velocity,calc,save_name):
+        merge(target_model,left_model, right_model, velocity, skip_layers, calc, save_name)
 
 
 # A dictionary that contains all nodes you want to export with their names
